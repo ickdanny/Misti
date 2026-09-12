@@ -6,11 +6,14 @@
  * Constructs a new MidiHub and returns it by value.
  * Should not be called more than once
  */
-MidiHub midiHubMake(bool muted){
+MidiHub midiHubMake(
+    bool muted,
+    void (*shortMsgCallback)(uint32_t)
+){
     MidiHub toRet = {0};
     toRet.midiOutPtr
         = pgAlloc(1, sizeof(*(toRet.midiOutPtr)));
-    *(toRet.midiOutPtr) = mmMidiOutMake();
+    *(toRet.midiOutPtr) = mmMidiOutMake(shortMsgCallback);
     toRet.midiSequencer = midiSequencerMake(
         toRet.midiOutPtr
     );
@@ -73,13 +76,16 @@ void midiHubFree(MidiHub *midiHubPtr){
  * ADDED FUNCTIONS TO MAKE FFI EASIER *
  * ================================== */
 
-MidiHub *midiHubAlloc(bool muted) {
+MidiHub *midiHubAlloc(
+    bool muted,
+    void (*shortMsgCallback)(uint32_t)
+) {
     MidiHub *midiHubPtr = pgAlloc(
         1, 
         sizeof(*midiHubPtr)
     );
     if(midiHubPtr){
-        *midiHubPtr = midiHubMake(muted);
+        *midiHubPtr = midiHubMake(muted, shortMsgCallback);
     }
     return midiHubPtr;
 }

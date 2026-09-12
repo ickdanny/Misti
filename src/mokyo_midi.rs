@@ -1,4 +1,9 @@
-
+/*
+ * This file provides basic Rust bindings to the C
+ * library MokyoMidi. 
+ *
+ * Author: ickdanny
+ */
 use std::ffi::CString;
 
 unsafe extern "C" {
@@ -8,7 +13,10 @@ unsafe extern "C" {
     fn midiSequenceFreeAlloc(
         midiSequencePtr: *mut MidiSequenceDummy
     );
-    fn midiHubAlloc(muted: bool) -> *mut MidiHubDummy;
+    fn midiHubAlloc(
+        muted: bool,
+        short_msg_callback: extern fn(u32)
+    ) -> *mut MidiHubDummy;
     fn midiHubStart(
         midiHubPtr: *mut MidiHubDummy,
         midiSequencePtr: *mut MidiSequenceDummy
@@ -36,9 +44,9 @@ pub struct MidiSequence {
 }
 
 impl MidiHub {
-    pub fn new() -> Self {
+    pub fn new(short_msg_callback: extern fn(u32)) -> Self {
         unsafe {
-            MidiHub { ptr: midiHubAlloc(false) }
+            MidiHub { ptr: midiHubAlloc(false, short_msg_callback) }
         }
     }
     pub fn start(&self, seq: &MidiSequence) {

@@ -51,12 +51,15 @@ typedef struct MMMidiOut{
     bool valid;
 
     #endif /* end __linux__ */
+
+    /* adding callback for Misti */
+    void (*shortMsgCallback)(uint32_t);
 } MMMidiOut;
 
 /*
  * Constructs a new MMMidiOut and returns it by value.
  */
-MMMidiOut mmMidiOutMake();
+MMMidiOut mmMidiOutMake(void (*shortMsgCallback)(uint32_t));
 
 /* Starts a MMMidiOut's output */
 void mmMidiOutStart(MMMidiOut *midiOutPtr);

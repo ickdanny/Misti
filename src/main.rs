@@ -8,6 +8,10 @@ use macroquad::prelude::*;
 use crate::mokyo_midi::*;
 mod mokyo_midi;
 
+extern fn callback(a: u32) {
+    println!("{:x}", a);
+}
+
 #[macroquad::main("Misti")]
 async fn main() {
     clear_background(BLACK);
@@ -21,7 +25,7 @@ async fn main() {
 
     let file_name = "test.mid";
 
-    let midihub = MidiHub::new();
+    let midihub = MidiHub::new(callback);
     let seq = MidiSequence::from_file(file_name);
     midihub.start(&seq);
     thread::sleep(Duration::from_millis(1000 * 5));

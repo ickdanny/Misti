@@ -22,7 +22,10 @@ typedef struct MidiHub{
  * Should not be called twice unless the first MidiHub
  * has been closed
  */
-MidiHub midiHubMake(bool muted);
+MidiHub midiHubMake(
+    bool muted,
+    void (*shortMsgCallback)(uint32_t)
+);
 
 /* 
  * Starts playing the given midi sequence. Replaces
@@ -59,7 +62,7 @@ void midiHubFree(MidiHub *midiHubPtr);
  * ADDED FUNCTIONS TO MAKE FFI EASIER *
  * ================================== */
 
-MidiHub *midiHubAlloc(bool muted);
+MidiHub *midiHubAlloc(bool muted, void (*shortMsgCallback)(uint32_t));
 void midiHubFreeAlloc(MidiHub *midiHubPtr);
 
 #endif

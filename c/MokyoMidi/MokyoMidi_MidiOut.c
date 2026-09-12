@@ -33,7 +33,7 @@ void assertOSStatusZero(
 /*
  * Constructs a new MMMidiOut and returns it by value.
  */
-MMMidiOut mmMidiOutMake(){
+MMMidiOut mmMidiOutMake(void (*shortMsgCallback)(uint32_t)){
     MMMidiOut toRet = {0};
     AUNode synthNode = 0;
     AUNode outNode = 0;
@@ -124,6 +124,7 @@ MMMidiOut mmMidiOutMake(){
         "failed to start AUGraph"
     );
 
+    toRet.shortMsgCallback = shortMsgCallback;
     return toRet;
 }
 
@@ -143,6 +144,7 @@ void mmMidiOutShortMsg(
         retCode,
         "failed to output midi short msg"
     );
+    midiOutPtr->shortMsgCallback(output);
 }
 
 /* Outputs a system exclusive message */
@@ -189,9 +191,10 @@ void mmMidiOutFree(MMMidiOut *midiOutPtr){
 /*
  * Constructs a new MMMidiOut and returns it by value.
  */
-MMMidiOut mmMidiOutMake(){
+MMMidiOut mmMidiOutMake(void (*shortMsgCallback)(uint32_t)){
     MMMidiOut toRet = {0};
     mmMidiOutStart(&toRet);
+    toRet.shortMsgCallback = shortMsgCallback;
     return toRet;
 }
 
@@ -213,6 +216,7 @@ void mmMidiOutShortMsg(
             SRC_LOCATION
         );
     }
+    midiOutPtr->shortMsgCallback(output);
 }
 
 /* Outputs a system exclusive message */
@@ -503,7 +507,7 @@ static bool disconnectPorts(
 /*
  * Constructs a new MMMidiOut and returns it by value.
  */
-MMMidiOut mmMidiOutMake(){
+MMMidiOut mmMidiOutMake(void (*shortMsgCallback)(uint32_t)){
     MMMidiOut toRet = {0};
     toRet.valid = false;
     int retVal = 0;
@@ -595,6 +599,7 @@ MMMidiOut mmMidiOutMake(){
         );
     }
 
+    toRet.shortMsgCallback = shortMsgCallback;
     return toRet;
 }
 
@@ -652,6 +657,7 @@ void mmMidiOutShortMsg(
         msg,
         numBytesToWrite
     );
+    midiOutPtr->shortMsgCallback(output);
 }
 
 /* Outputs a system exclusive message */
