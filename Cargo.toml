@@ -12,3 +12,6 @@ repository = "https://www.github.com/ickdanny/Misti"
 readme = "readme.md"
 
 [dependencies]
+midly = "0.5.3"
+midir = "0.10.1"
+nodi = { version = "1.0.3", features = ["midir"] }
