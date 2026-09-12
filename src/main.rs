@@ -1,5 +1,5 @@
 
-use std::sync::mpsc::{Sender, Receiver, channel};
+use std::sync::mpsc::{Sender, Receiver, channel, TryRecvError};
 use std::sync::OnceLock;
 use std::thread;
 use std::time::Duration;
@@ -8,6 +8,7 @@ use macroquad::prelude::*;
 
 mod mokyo_midi;
 mod midi_state;
+mod midi_short_msg;
 
 use crate::mokyo_midi::*;
 use crate::midi_state::*;
@@ -34,7 +35,7 @@ fn init_channel() -> Option<Receiver<u32>> {
 
 #[macroquad::main("Misti")]
 async fn main() {
-    let midi_state = MidiState::new();
+    let mut midi_state = MidiState::new();
     let receiver = init_channel().unwrap();
     clear_background(BLACK);
  
@@ -53,10 +54,28 @@ async fn main() {
 
     thread::sleep(Duration::from_millis(1000 * 5));
     
-    for _ in 0..100 {
-        draw_text(format!("received {:x}", receiver.recv().unwrap()), 50.0, 50.0, 50.0, GRAY);
+    for _ in 0..1000 {
+        clear_background(BLACK);
+        draw_text("no data", 50.0, 50.0, 50.0, GRAY);
+        let mut count = 0;
+        loop {
+            match receiver.try_recv() {
+                Ok(data) => {
+                    count += 1;
+                    clear_background(BLACK);
+                    draw_text(format!("received {}; final {:x}", count, data), 50.0, 50.0, 50.0, GRAY);
+                    midi_state.update(data);
+                },
+                Err(TryRecvError::Empty) => {
+                    break;
+                },
+                Err(TryRecvError::Disconnected) => {
+                    panic!();
+                }
+            }
+        }
         next_frame().await;
-        thread::sleep(Duration::from_millis(50));
+        thread::sleep(Duration::from_millis(10));
     }
     midihub.stop();
 }

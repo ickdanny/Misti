@@ -17,3 +17,4 @@ cc = { version = "1.0", features = ["parallel"] }
 
 [dependencies]
 macroquad = "0.4.16"
+either = "1.18.0"
