@@ -1,97 +1,49 @@
-use std::{
-    convert::TryFrom,
-    error::Error,
-    fs
-};
+// todo get mokyomidi to work on Rust
 
-// use clap::{arg, Command};
-use midir::{MidiOutput, MidiOutputConnection};
-use nodi::{
-	midly::{Format, Smf},
-	timers::Ticker,
-	Player, Sheet,
-};
+use std::ffi::CString;
+use std::thread;
+use std::time::Duration;
 
-struct Args {
-	file: String,
-	device_no: usize,
-	list: bool,
+#[repr(C)]
+struct MidiHub {
+    _dummy: [u8; 0],
 }
 
-impl Args {
-    fn from_args() -> Self {
-        Self{
-            file: String::from("test.mid"),
-            device_no: 0,
-            list: true
-        }
-    }
-
-    fn run(&self) -> Result<(), Box<dyn Error>> {
-        if self.list {
-            return list_devices();
-        }
-
-        let data = fs::read(&self.file)?;
-        let Smf { header, tracks } = Smf::parse(&data)?;
-        let timer = Ticker::try_from(header.timing)?;
-
-        let con = get_connection(self.device_no)?;
-
-        let sheet = match header.format {
-            Format::SingleTrack | Format::Sequential => Sheet::sequential(&tracks),
-            Format::Parallel => Sheet::parallel(&tracks),
-        };
-
-        let mut player = Player::new(timer, con);
-
-        println!("starting playback");
-        player.play(&sheet);
-        Ok(())
-    }
+#[repr(C)]
+struct MidiSequence {
+    _dummy: [u8; 0],
 }
 
-fn get_connection(n: usize) -> Result<MidiOutputConnection, Box<dyn Error>> {
-    let midi_out = MidiOutput::new("Misti")?;
+unsafe extern "C" {
+    fn midiSequenceAllocAndParseMidiFile(
+        fileName: *const std::ffi::c_char
+    ) -> *mut MidiSequence;
+    fn midiSequenceFreeAlloc(
+        midiSequencePtr: *mut MidiSequence
+    );
 
-    let out_ports = midi_out.ports();
-    if out_ports.is_empty() {
-        // here, .into() coerces into Box<dyn Error>> I think...
-        return Err("no MIDI output device detected".into());
-    }
-    if n >= out_ports.len() {
-        return Err(format!(
-            "only {} MIDI devices detected; run with --list to see them",
-            out_ports.len()
-        ).into());
-    }
-
-    let out_port = &out_ports[n];
-    let out = midi_out.connect(out_port, "todo idk what this string does")?;
-    Ok(out)
+    fn midiHubAlloc(muted: bool) -> *mut MidiHub;
+    fn midiHubStart(
+        midiHubPtr: *mut MidiHub,
+        midiSequencePtr: *mut MidiSequence
+    );
+    fn midiHubStop(midiHubPtr: *mut MidiHub);
+    fn midiHubFreeAlloc(midiHubPtr: *mut MidiHub);
 }
 
-fn list_devices() -> Result<(), Box<dyn Error>> {
-    let midi_out = MidiOutput::new("Misti")?;
+fn main() {
+    let file_name = CString::new("test.mid").unwrap();
 
-    let out_ports = midi_out.ports();
-
-    if out_ports.is_empty() {
-        println!("No active MIDI output device detected.");
-    } else {
-        for (i, p) in out_ports.iter().enumerate() {
-            println!(
-                "#{}: {}",
-                i,
-                midi_out.port_name(p)
-                        .as_deref()
-                        .unwrap_or("<no device name>")
-            );
-        }
+    unsafe {
+        let seq = midiSequenceAllocAndParseMidiFile(
+            file_name.as_ptr()
+        );
+        let midi_hub = midiHubAlloc(false);
+        println!("just before starting midi hub");
+        midiHubStart(midi_hub, seq);
+        println!("after starting midi hub");
+        thread::sleep(Duration::from_millis(1000 * 5));
+        midiHubFreeAlloc(midi_hub);
+        midiSequenceFreeAlloc(seq);
     }
-    Ok(())
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
-    Args::from_args().run()
 }

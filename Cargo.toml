@@ -10,8 +10,7 @@ license = "MIT OR Apache-2.0"
 homepage = "https://www.github.com/ickdanny/Misti"
 repository = "https://www.github.com/ickdanny/Misti"
 readme = "readme.md"
+build = "build.rs"
 
-[dependencies]
-midly = "0.5.3"
-midir = "0.10.1"
-nodi = { version = "1.0.3", features = ["midir"] }
+[build-dependencies]
+cc = { version = "1.0", features = ["parallel"] }
