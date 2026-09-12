@@ -6,12 +6,16 @@ use std::time::Duration;
 
 use macroquad::prelude::*;
 
-use crate::mokyo_midi::*;
 mod mokyo_midi;
+mod midi_state;
+
+use crate::mokyo_midi::*;
+use crate::midi_state::*;
+
 
 static SHORT_MSG_SENDER: OnceLock<Sender<u32>> = OnceLock::new();
 
-extern "C" fn callback(a: u32) {
+extern "C" fn short_msg_callback(a: u32) {
     match SHORT_MSG_SENDER.get() {
         Some(sender) => sender.send(a).unwrap(),
         _ => ()
@@ -30,6 +34,7 @@ fn init_channel() -> Option<Receiver<u32>> {
 
 #[macroquad::main("Misti")]
 async fn main() {
+    let midi_state = MidiState::new();
     let receiver = init_channel().unwrap();
     clear_background(BLACK);
  
@@ -42,7 +47,7 @@ async fn main() {
 
     let file_name = "test.mid";
 
-    let midihub = MidiHub::new(callback);
+    let midihub = MidiHub::new(short_msg_callback);
     let seq = MidiSequence::from_file(file_name);
     midihub.start(&seq);
 
@@ -53,4 +58,5 @@ async fn main() {
         next_frame().await;
         thread::sleep(Duration::from_millis(50));
     }
+    midihub.stop();
 }

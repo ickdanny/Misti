@@ -4,6 +4,7 @@
  *
  * Author: ickdanny
  */
+
 use std::ffi::CString;
 
 unsafe extern "C" {
