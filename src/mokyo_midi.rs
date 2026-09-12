@@ -15,7 +15,7 @@ unsafe extern "C" {
     );
     fn midiHubAlloc(
         muted: bool,
-        short_msg_callback: extern fn(u32)
+        short_msg_callback: extern "C" fn(u32)
     ) -> *mut MidiHubDummy;
     fn midiHubStart(
         midiHubPtr: *mut MidiHubDummy,
@@ -44,7 +44,7 @@ pub struct MidiSequence {
 }
 
 impl MidiHub {
-    pub fn new(short_msg_callback: extern fn(u32)) -> Self {
+    pub fn new(short_msg_callback: extern "C" fn(u32)) -> Self {
         unsafe {
             MidiHub { ptr: midiHubAlloc(false, short_msg_callback) }
         }
