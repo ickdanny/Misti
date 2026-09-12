@@ -1,49 +1,28 @@
-// todo get mokyomidi to work on Rust
 
-use std::ffi::CString;
+
 use std::thread;
 use std::time::Duration;
 
-#[repr(C)]
-struct MidiHub {
-    _dummy: [u8; 0],
-}
+use macroquad::prelude::*;
 
-#[repr(C)]
-struct MidiSequence {
-    _dummy: [u8; 0],
-}
+use crate::mokyo_midi::*;
+mod mokyo_midi;
 
-unsafe extern "C" {
-    fn midiSequenceAllocAndParseMidiFile(
-        fileName: *const std::ffi::c_char
-    ) -> *mut MidiSequence;
-    fn midiSequenceFreeAlloc(
-        midiSequencePtr: *mut MidiSequence
-    );
+#[macroquad::main("Misti")]
+async fn main() {
+    clear_background(BLACK);
+ 
+    draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
+    draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
 
-    fn midiHubAlloc(muted: bool) -> *mut MidiHub;
-    fn midiHubStart(
-        midiHubPtr: *mut MidiHub,
-        midiSequencePtr: *mut MidiSequence
-    );
-    fn midiHubStop(midiHubPtr: *mut MidiHub);
-    fn midiHubFreeAlloc(midiHubPtr: *mut MidiHub);
-}
+    draw_text("Hello Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
 
-fn main() {
-    let file_name = CString::new("test.mid").unwrap();
+    next_frame().await;
 
-    unsafe {
-        let seq = midiSequenceAllocAndParseMidiFile(
-            file_name.as_ptr()
-        );
-        let midi_hub = midiHubAlloc(false);
-        println!("just before starting midi hub");
-        midiHubStart(midi_hub, seq);
-        println!("after starting midi hub");
-        thread::sleep(Duration::from_millis(1000 * 5));
-        midiHubFreeAlloc(midi_hub);
-        midiSequenceFreeAlloc(seq);
-    }
+    let file_name = "test.mid";
+
+    let midihub = MidiHub::new();
+    let seq = MidiSequence::from_file(file_name);
+    midihub.start(&seq);
+    thread::sleep(Duration::from_millis(1000 * 5));
 }
