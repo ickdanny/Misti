@@ -5,6 +5,8 @@
  * Author: ickdanny
  */
 
+#![allow(dead_code)]
+
 use either::*;
 
 /* these are the CC types we are interested in */

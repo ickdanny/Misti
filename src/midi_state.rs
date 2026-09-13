@@ -12,10 +12,10 @@ const NUM_NOTES_PER_CHANNEL: usize = 128;
 const NUM_CHANNELS: usize = 16;
 
 pub struct MidiState {
-    song_name: String,
+    pub song_name: String,
     // todo time sig
     // todo tempo
-    channel_states: [ChannelState; NUM_CHANNELS],
+    pub channel_states: [ChannelState; NUM_CHANNELS],
 }
 
 impl MidiState {
@@ -24,6 +24,11 @@ impl MidiState {
             song_name: String::new(),
             channel_states: std::array::from_fn(|_| ChannelState::new()),
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.song_name = String::new();
+        self.channel_states = std::array::from_fn(|_| ChannelState::new());
     }
 
     pub fn update(&mut self, raw_msg: u32) {
@@ -61,22 +66,22 @@ impl MidiState {
 }
 
 pub struct ChannelState {
-    inst_name: String,
-    program: u8,
-    bank: u8,
-    pan: u8,
-    main_vol: u8,
-    expression: u8,
-    modulation: u8,
-    reverb: u8,
-    chorus: u8,
-    delay: u8,
-    last_rpn_lsb: u8,
-    last_rpn_msb: u8,
-    was_last_param_registered: bool,
-    pitchbend_sens: u8, // in semitones
-    pitchbend_amount: i16,
-    note_states: [NoteState; NUM_NOTES_PER_CHANNEL],
+    pub inst_name: String,
+    pub program: u8,
+    pub bank: u8,
+    pub pan: u8,
+    pub main_vol: u8,
+    pub expression: u8,
+    pub modulation: u8,
+    pub reverb: u8,
+    pub chorus: u8,
+    pub delay: u8,
+    pub last_rpn_lsb: u8,
+    pub last_rpn_msb: u8,
+    pub was_last_param_registered: bool,
+    pub pitchbend_sens: u8, // in semitones
+    pub pitchbend_amount: i16,
+    pub note_states: [NoteState; NUM_NOTES_PER_CHANNEL],
 }
 
 impl ChannelState {
@@ -184,8 +189,8 @@ impl ChannelState {
 }
 
 pub struct NoteState {
-    on: bool,
-    velocity: u8,
+    pub on: bool,
+    pub velocity: u8,
 }
 
 impl NoteState {
