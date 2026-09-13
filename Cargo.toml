@@ -16,5 +16,11 @@ build = "build.rs"
 cc = { version = "1.0", features = ["parallel"] }
 
 [dependencies]
-macroquad = "0.4.16"
+bevy = { version = "0.19.1", default-features = false, features = ["2d", "dynamic_linking"] }
 either = "1.18.0"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
