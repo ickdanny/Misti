@@ -27,7 +27,7 @@ fn main() {
         .flag("/std:c11")
         .flag("/experimental:c11atomics")
         .define("WIN32", None)
-        .define("VERBOSE", None)
+        // .define("VERBOSE", None)
         .compile("mokyo_midi");
     
     println!("cargo:rustc-link-lib=winmm");
