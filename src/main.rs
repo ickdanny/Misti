@@ -8,11 +8,13 @@ mod mokyo_midi;
 mod midi_state;
 mod midi_short_msg;
 mod main_struct;
+mod config;
 mod layout;
 
 use crate::mokyo_midi::*;
 use crate::midi_state::*;
 use crate::main_struct::*;
+use crate::config::*;
 use crate::layout::*;
 
 /* used for callback from C to Rust */
@@ -22,8 +24,12 @@ extern "C" fn short_msg_callback(a: u32) {
     match SHORT_MSG_SENDER.get() {
         Some(sender) => {
             match sender.send(a) {
-                Ok(_) => (),
-                Err(_) => (),
+                Ok(_) => {
+                    // do nothing
+                },
+                Err(err) => {
+                    println!("{:?}", err);
+                },
             }
         },
         _ => ()
@@ -95,13 +101,10 @@ fn update_state_system(
 fn clear_short_msg_receiver(short_msg_receiver: &Receiver<u32>) {
     loop {
         match short_msg_receiver.try_recv() {
-            Ok(data) => (),
-            Err(TryRecvError::Empty) => {
+            Ok(_) => (),
+            Err(_) => {
                 break;
             },
-            Err(TryRecvError::Disconnected) => {
-                break;
-            }
         }
     }
 }
@@ -112,7 +115,7 @@ fn file_drop_system(
 ) {
     for event in events.read() {
         match event {
-            FileDragAndDrop::DroppedFile { window, path_buf } => {
+            FileDragAndDrop::DroppedFile { window: _, path_buf } => {
                 if let Some(extension) = path_buf.extension() {
                     if extension == "mid" {
                         if let Some(path) = path_buf.to_str() {
@@ -131,8 +134,8 @@ fn file_drop_system(
 }
 
 fn main() {
+    let config = read_config();
     App::new()
-        //todo need to set nearest neighbor?
         .add_plugins(DefaultPlugins.set(
             WindowPlugin {
                 primary_window: Some(Window {
@@ -146,11 +149,18 @@ fn main() {
             ImagePlugin::default_nearest()
         ))
         .insert_non_send(MainStruct::new())
-        .insert_resource(ClearColor(Color::srgb(0.0, 0.0, 0.0)))
+        .insert_resource(ClearColor(Color::srgb(
+            51.0/255.0,
+            47.0/255.0,
+            53.0/255.0)))
+        .insert_resource(config)
         .add_systems(Startup, spawn_camera_system)
         .add_systems(Startup, spawn_graphics_system)
         .add_systems(Update, update_state_system)
         .add_systems(Update, key_update_system)
+        .add_systems(Update, pitchbend_move_system)
         .add_systems(Update, file_drop_system)
+        .add_systems(Update, text_color_update_system)
+        .add_systems(Update, numeric_text_update_system)
         .run();
 }

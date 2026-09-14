@@ -18,6 +18,8 @@ cc = { version = "1.0", features = ["parallel"] }
 [dependencies]
 bevy = { version = "0.19.1", default-features = false, features = ["2d", "dynamic_linking"] }
 either = "1.18.0"
+serde = "1.0.229"
+toml = "1.1.6"
 
 [profile.dev]
 opt-level = 1

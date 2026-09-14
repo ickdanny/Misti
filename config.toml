@@ -1,0 +1,18 @@
+program_group_colors = [
+    [226, 183, 190], # piano
+    [235, 174, 188], # chromatic percussion
+    [255, 203, 215], # organ
+    [193, 156, 175], # guitar
+    [225, 182, 219], # bass
+    [203, 191, 207], # strings 1
+    [181, 165, 211], # strings 2
+    [139, 143, 176], # brass
+    [166, 199, 231], # reed
+    [195, 222, 235], # pipe
+    [157, 204, 215], # synth lead
+    [200, 220, 190], # synth pad
+    [255, 229, 186], # synth effects
+    [244, 210, 205], # ethnic
+    [255, 232, 220], # percussive
+    [255, 247, 240], # sound effects
+]

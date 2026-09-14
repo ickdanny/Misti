@@ -1,6 +1,8 @@
 
 
 fn main() {
+    println!("cargo:rerun-if-changed=c/*");
+
     cc::Build::new()
         .include("c/MokyoMidi")
         .include("c/Constructure")
@@ -25,6 +27,7 @@ fn main() {
         .flag("/std:c11")
         .flag("/experimental:c11atomics")
         .define("WIN32", None)
+        .define("VERBOSE", None)
         .compile("mokyo_midi");
     
     println!("cargo:rustc-link-lib=winmm");

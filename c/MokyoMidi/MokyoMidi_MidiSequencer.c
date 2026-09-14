@@ -59,6 +59,9 @@ static void midiSequencerOutputMidiEvent(
 static void midiSequencerOutputSysexEvent(
     MidiSequencer *sequencerPtr
 ){
+    #ifdef VERBOSE
+    pgWarning("sequencer handling sysex");
+    #endif
     ++(sequencerPtr->currentPtr);
     /* currentPtr now points to length block */
 
@@ -82,6 +85,9 @@ static void midiSequencerOutputSysexEvent(
 static void midiSequencerHandleMetaEvent(
     MidiSequencer *sequencerPtr
 ){
+    #ifdef VERBOSE
+    pgWarning("sequencer handling meta event");
+    #endif
     /* status is the second byte (following 0xFF) */
 	uint8_t metaEventStatus = getByte(
         sequencerPtr->currentPtr->event,
@@ -243,7 +249,9 @@ static void midiSequencerPlayback(
                 targetTime,
                 sleepDuration100ns * 100
             );
+            pgWarning("before sleep");
             sleepUntil(targetTime);
+            pgWarning("after sleep");
 
             /* also check running after sleep */
             if(!(sequencerPtr->running)){
@@ -254,6 +262,10 @@ static void midiSequencerPlayback(
                 return;
             }
         }
+
+        #ifdef VERBOSE
+        pgWarning("sequencer handling event");
+        #endif
 
         /* handle event */
         status = getByte(eventUnit.event, 0);

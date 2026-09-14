@@ -60,7 +60,9 @@ impl MidiState {
             MidiShortMsg::PitchBendChange { amount: _, channel } => {
                 self.channel_states[channel as usize].update(short_msg);
             }
-            _ => ()
+            _ => {
+                println!("other update in state: {:x}", raw_msg);
+            }
         }
     }
 }
@@ -183,28 +185,40 @@ impl ChannelState {
             MidiShortMsg::PitchBendChange { amount, .. } => {
                 self.pitchbend_amount = amount;
             }
-            _ => ()
+            _ => {
+                println!("other update in channel");
+            }
         }
     }
 }
 
 pub struct NoteState {
-    pub on: bool,
+    on_count: u32,
     pub velocity: u8,
 }
 
 impl NoteState {
     fn new() -> Self {
-        Self { on: false, velocity: 0 }
+        Self { on_count: 0, velocity: 0 }
     }
 
     fn turn_on(&mut self, velocity: u8) {
-        self.on = true;
-        self.velocity = velocity;
+        if velocity == 0 {
+            self.turn_off(0);
+        } else {
+            self.on_count += 1;
+            self.velocity = velocity;
+        }
     }
 
     fn turn_off(&mut self, velocity: u8) {
-        self.on = false;
+        if self.on_count > 0 {
+            self.on_count -= 1;
+        }
         self.velocity = velocity;
+    }
+
+    pub fn is_on(&self) -> bool {
+        self.on_count > 0
     }
 }
