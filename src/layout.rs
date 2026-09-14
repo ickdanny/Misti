@@ -12,7 +12,7 @@ use bevy::sprite::*;
 use crate::main_struct::*;
 use crate::config::*;
 
-pub const GAME_WIDTH: u32 = 850;
+pub const GAME_WIDTH: u32 = 840;
 pub const GAME_HEIGHT: u32 = 380;
 pub const PIXEL_RATIO: u32 = 2;
 pub const WINDOW_WIDTH: u32 = GAME_WIDTH * PIXEL_RATIO;
@@ -30,9 +30,12 @@ const TEXT_Y_OFFSET: i32 = -3;
 
 const INST_NAME_X: i32 = 9;
 
-const HEADER_Y: i32 = -9;
+const HEADER_Y: i32 = -5;
 
-const FOOTER_Y: i32 = -358;
+const FOOTER_Y: i32 = -362;
+
+const LOGO_X: i32 = (GAME_WIDTH - 65) as i32;
+const LOGO_Y: i32 = HEADER_Y + 2;
 
 #[derive(Resource)]
 pub struct Sprites {
@@ -42,6 +45,8 @@ pub struct Sprites {
     white_r_on: Handle<Image>,
     white_lr_on: Handle<Image>,
     black_on: Handle<Image>,
+    horizontal_divider: Handle<Image>,
+    logo: Handle<Image>,
 }
 
 #[derive(Component)]
@@ -94,6 +99,8 @@ impl Sprites {
             white_r_on: asset_server.load("white_r_on.png"),
             white_lr_on: asset_server.load("white_lr_on.png"),
             black_on: asset_server.load("black_on.png"),
+            horizontal_divider: asset_server.load("horizontal_divider.png"),
+            logo: asset_server.load("logo.png"),
         }
     }
 }
@@ -273,9 +280,36 @@ fn spawn_graphics(
     let white_r_on = &sprites.white_r_on;
     let white_lr_on = &sprites.white_lr_on;
     let black_on = &sprites.black_on;
+    let horizontal_divider = &sprites.horizontal_divider;
+    let logo = &sprites.logo;
 
     let color = config.program_group_colors[15];
     let color = &color;
+
+    // spawn graphics
+    spawn_graphic(
+        commands,
+        logo,
+        LOGO_X,
+        LOGO_Y,
+        0
+    );
+
+    // spawn dividers
+    spawn_graphic(
+        commands,
+        horizontal_divider,
+        0,
+        HEADER_Y - 16,
+        0
+    );
+    spawn_graphic(
+        commands,
+        horizontal_divider,
+        0,
+        FOOTER_Y + 3,
+        0
+    );
 
     // spawn header
     spawn_static_text(

@@ -31,6 +31,12 @@ impl MidiState {
         self.channel_states = std::array::from_fn(|i| ChannelState::new(i as u8));
     }
 
+    pub fn reset_all_notes(&mut self) {
+        for ref mut channel in &mut self.channel_states {
+            channel.reset_all_notes();
+        }
+    }
+
     pub fn update(
         &mut self,
         raw_msg: u32,
@@ -54,10 +60,10 @@ impl MidiState {
             MidiShortMsg::ChannelModeControlChange { cc } => {
                 match cc {
                     ChannelModeCCType::AllSoundOff => {
-                        // todo
+                        self.reset_all_notes();
                     },
                     ChannelModeCCType::AllNotesOff => {
-                        // todo
+                        self.reset_all_notes();
                     },
                     _ => ()
                 }
@@ -220,6 +226,12 @@ impl ChannelState {
             }
         }
     }
+
+    fn reset_all_notes(&mut self) {
+        for ref mut note_state in &mut self.note_states {
+            note_state.reset();
+        }
+    }
 }
 
 pub struct NoteState {
@@ -250,5 +262,10 @@ impl NoteState {
 
     pub fn is_on(&self) -> bool {
         self.on_count > 0
+    }
+
+    fn reset(&mut self) {
+        self.on_count = 0;
+        self.velocity = 0;
     }
 }
