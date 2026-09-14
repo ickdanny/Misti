@@ -634,17 +634,17 @@ pub fn spawn_graphics_system(
 
 pub fn key_update_system(
     mut query: Query<(&mut Sprite, &mut Visibility, &Key, &Channel)>,
-    main_struct: NonSendMut<MainStruct>,
+    mut main_struct: NonSendMut<MainStruct>,
     config: Res<Config>,
 ) {
-    let midi_state = &main_struct.midi_state;
+    let midi_state = &mut main_struct.midi_state;
     for (mut sprite, mut visibility, key, channel) in &mut query {
         let channel = channel.0;
         let channel_state
-            = &midi_state.channel_states[channel as usize];
+            = &mut midi_state.channel_states[channel as usize];
         let note_state
-            = &channel_state.note_states[key.note_num as usize];
-        if note_state.is_on() {
+            = &mut channel_state.note_states[key.note_num as usize];
+        if note_state.is_on() || note_state.on_flag {
             let color_index = if channel == 9 {
                 15
             } else {
@@ -655,6 +655,7 @@ pub fn key_update_system(
 
             sprite.color = config.program_group_colors
                 [color_index as usize].into();
+            note_state.on_flag = false;
         } else { // note is off
             *visibility = Visibility::Hidden;
         }
@@ -678,6 +679,8 @@ pub fn pitchbend_move_system(
         let base_x = base_position.x;
         let semitones = pitchbend_sens * (pitchbend_amount / 8192.0);
         let x_offset = KEY_X_INC as f32 * semitones / 2.0;
+        // round to keep position to pixel grid
+        let x_offset = x_offset.round();
         transform.translation.x = base_x + x_offset;
     }
 }

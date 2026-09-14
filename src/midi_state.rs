@@ -236,12 +236,14 @@ impl ChannelState {
 
 pub struct NoteState {
     on_count: u32,
+    /* used to detect instant note off e.g. drums */
+    pub on_flag: bool,
     pub velocity: u8,
 }
 
 impl NoteState {
     fn new() -> Self {
-        Self { on_count: 0, velocity: 0 }
+        Self { on_count: 0, on_flag: false, velocity: 0 }
     }
 
     fn turn_on(&mut self, velocity: u8) {
@@ -249,6 +251,7 @@ impl NoteState {
             self.turn_off(0);
         } else {
             self.on_count += 1;
+            self.on_flag = true;
             self.velocity = velocity;
         }
     }
@@ -266,6 +269,7 @@ impl NoteState {
 
     fn reset(&mut self) {
         self.on_count = 0;
+        self.on_flag = false;
         self.velocity = 0;
     }
 }

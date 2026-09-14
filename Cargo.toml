@@ -1,6 +1,6 @@
 [package]
 name = "Misti"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["ickdanny"]
 categories = ["visualization"]
 description = "A MIDI file visualizer."
@@ -16,8 +16,8 @@ build = "build.rs"
 cc = { version = "1.0", features = ["parallel"] }
 
 [dependencies]
-# bevy = { version = "0.19.1", default-features = false, features = ["2d", "dynamic_linking"] }
-bevy = { version = "0.19.1", default-features = false, features = ["2d"] }
+bevy = { version = "0.19.1", default-features = false, features = ["2d", "dynamic_linking"] }
+# bevy = { version = "0.19.1", default-features = false, features = ["2d"] }
 either = "1.18.0"
 serde = "1.0.229"
 serde-big-array = "0.5.1"
