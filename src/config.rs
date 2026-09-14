@@ -29,15 +29,17 @@ impl From<ColorRGB> for Srgba {
 
 #[derive(Debug, Deserialize)]
 struct ReadInConfig {
+    midi_out_index: i32,
     program_group_colors: [ColorRGB; 16],
     #[serde(with = "BigArray")]
-    pub inst_names: [String; 128],
+    inst_names: [String; 128],
     #[serde(with = "BigArray")]
-    pub drum_names: [String; 128],
+    drum_names: [String; 128],
 }
 
 #[derive(Debug, Resource)]
 pub struct Config {
+    pub midi_out_index: i32,
     pub program_group_colors: [Srgba; 16],
     pub inst_names: [String; 128],
     pub drum_names: [String; 128],
@@ -48,6 +50,7 @@ pub fn read_config() -> Config {
     let contents = std::fs::read_to_string(file_name).unwrap();
     let read_in_config: ReadInConfig = toml::from_str(&contents).unwrap();
     Config {
+        midi_out_index: read_in_config.midi_out_index,
         program_group_colors:
             read_in_config.program_group_colors.map(|color_rgb| {
                 Srgba::from(color_rgb)

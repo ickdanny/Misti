@@ -1,3 +1,5 @@
+midi_out_index = 0
+
 program_group_colors = [
     [226, 183, 190], # piano
     [235, 174, 188], # chromatic percussion

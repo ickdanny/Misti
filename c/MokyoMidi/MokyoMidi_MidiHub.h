@@ -24,6 +24,7 @@ typedef struct MidiHub{
  */
 MidiHub midiHubMake(
     bool muted,
+    int32_t midi_out_index,
     void (*shortMsgCallback)(uint32_t)
 );
 
@@ -62,7 +63,11 @@ void midiHubFree(MidiHub *midiHubPtr);
  * ADDED FUNCTIONS TO MAKE FFI EASIER *
  * ================================== */
 
-MidiHub *midiHubAlloc(bool muted, void (*shortMsgCallback)(uint32_t));
+MidiHub *midiHubAlloc(
+    bool muted,
+    int32_t midi_out_index,
+    void (*shortMsgCallback)(uint32_t)
+);
 void midiHubFreeAlloc(MidiHub *midiHubPtr);
 
 #endif

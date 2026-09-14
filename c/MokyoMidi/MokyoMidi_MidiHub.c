@@ -8,12 +8,16 @@
  */
 MidiHub midiHubMake(
     bool muted,
+    int32_t midi_out_index,
     void (*shortMsgCallback)(uint32_t)
 ){
     MidiHub toRet = {0};
     toRet.midiOutPtr
         = pgAlloc(1, sizeof(*(toRet.midiOutPtr)));
-    *(toRet.midiOutPtr) = mmMidiOutMake(shortMsgCallback);
+    *(toRet.midiOutPtr) = mmMidiOutMake(
+        midi_out_index,
+        shortMsgCallback
+    );
     toRet.midiSequencer = midiSequencerMake(
         toRet.midiOutPtr
     );
@@ -78,6 +82,7 @@ void midiHubFree(MidiHub *midiHubPtr){
 
 MidiHub *midiHubAlloc(
     bool muted,
+    int32_t midi_out_index,
     void (*shortMsgCallback)(uint32_t)
 ) {
     MidiHub *midiHubPtr = pgAlloc(
@@ -85,7 +90,7 @@ MidiHub *midiHubAlloc(
         sizeof(*midiHubPtr)
     );
     if(midiHubPtr){
-        *midiHubPtr = midiHubMake(muted, shortMsgCallback);
+        *midiHubPtr = midiHubMake(muted, midi_out_index, shortMsgCallback);
     }
     return midiHubPtr;
 }

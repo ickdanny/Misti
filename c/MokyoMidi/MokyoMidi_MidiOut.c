@@ -191,9 +191,12 @@ void mmMidiOutFree(MMMidiOut *midiOutPtr){
 /*
  * Constructs a new MMMidiOut and returns it by value.
  */
-MMMidiOut mmMidiOutMake(void (*shortMsgCallback)(uint32_t)){
+MMMidiOut mmMidiOutMake(
+    int32_t midi_out_index,
+    void (*shortMsgCallback)(uint32_t)
+){
     MMMidiOut toRet = {0};
-    mmMidiOutStart(&toRet);
+    mmMidiOutStart(midi_out_index, &toRet);
     toRet.shortMsgCallback = shortMsgCallback;
     return toRet;
 }
@@ -268,13 +271,16 @@ void mmMidiOutSysex(
 }
 
 /* Starts a MidiOut's output */
-void mmMidiOutStart(MMMidiOut *midiOutPtr){
+void mmMidiOutStart(
+    int32_t midi_out_index,
+    MMMidiOut *midiOutPtr
+){
     if(midiOutPtr->midiOutHandle != 0){
         mmMidiOutStop(midiOutPtr);
     }
     MMRESULT result = midiOutOpen(
         &(midiOutPtr->midiOutHandle),
-        2, /* device ID can be MIDI_MAPPER */
+        midi_out_index, /* device ID can be MIDI_MAPPER */
         0,
         0,
         CALLBACK_NULL

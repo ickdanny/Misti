@@ -59,10 +59,16 @@ typedef struct MMMidiOut{
 /*
  * Constructs a new MMMidiOut and returns it by value.
  */
-MMMidiOut mmMidiOutMake(void (*shortMsgCallback)(uint32_t));
+MMMidiOut mmMidiOutMake(
+    int32_t midi_out_index,
+    void (*shortMsgCallback)(uint32_t)
+);
 
 /* Starts a MMMidiOut's output */
-void mmMidiOutStart(MMMidiOut *midiOutPtr);
+void mmMidiOutStart(
+    int32_t midi_out_index,
+    MMMidiOut *midiOutPtr
+);
 
 /* Stops a MMMidiOut's output */
 void mmMidiOutStop(MMMidiOut *midiOutPtr);

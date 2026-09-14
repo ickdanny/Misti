@@ -47,10 +47,10 @@ fn init_channel() -> Option<Receiver<u32>> {
 }
 
 impl MainStruct {
-    fn new() -> Self {
+    fn new(midi_out_index: i32) -> Self {
         let midi_state = MidiState::new();
         let short_msg_receiver = init_channel().unwrap();
-        let midi_hub = MidiHub::new(short_msg_callback);
+        let midi_hub = MidiHub::new(midi_out_index, short_msg_callback);
         Self {
             midi_state,
             short_msg_receiver,
@@ -155,7 +155,7 @@ fn main() {
         ).set(
             ImagePlugin::default_nearest()
         ))
-        .insert_non_send(MainStruct::new())
+        .insert_non_send(MainStruct::new(config.midi_out_index))
         .insert_resource(ClearColor(Color::srgb(
             51.0/255.0,
             47.0/255.0,
