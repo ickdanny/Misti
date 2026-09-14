@@ -5,6 +5,8 @@
  * Author: ickdanny
  */
 
+// TODO: stop looping
+
 use either::*;
 use bevy::prelude::*;
 use bevy::sprite::*;
@@ -34,8 +36,8 @@ const HEADER_Y: i32 = -5;
 
 const FOOTER_Y: i32 = -362;
 
-const LOGO_X: i32 = (GAME_WIDTH - 65) as i32;
-const LOGO_Y: i32 = HEADER_Y + 2;
+const LOGO_X: i32 = (GAME_WIDTH - 71) as i32;
+const LOGO_Y: i32 = HEADER_Y + 1;
 
 #[derive(Resource)]
 pub struct Sprites {
@@ -292,7 +294,7 @@ fn spawn_graphics(
         logo,
         LOGO_X,
         LOGO_Y,
-        0
+        10
     );
 
     // spawn dividers

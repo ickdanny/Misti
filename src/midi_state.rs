@@ -13,8 +13,8 @@ const NUM_CHANNELS: usize = 16;
 
 pub struct MidiState {
     pub song_name: String,
-    // todo time sig
-    // todo tempo
+    // TODO: time sig
+    // TODO: tempo
     pub channel_states: [ChannelState; NUM_CHANNELS],
 }
 

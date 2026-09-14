@@ -71,10 +71,10 @@ impl Drop for MidiHub {
 }
 
 impl MidiSequence {
-    // todo better to return Option
+    // TODO: better to return Option
     pub fn from_file(file_name: &str) -> Self {
         let file_name = CString::new(file_name).unwrap();
-        // todo best to test result of above
+        // TODO: best to test result of above
         unsafe {
             MidiSequence {
                 ptr: midiSequenceAllocAndParseMidiFile(file_name.as_ptr())
