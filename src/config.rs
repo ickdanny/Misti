@@ -7,6 +7,7 @@
 
 use bevy::prelude::*;
 use serde::Deserialize;
+use serde_big_array::BigArray;
 
 #[derive(Debug, Deserialize)]
 struct ColorRGB {
@@ -27,23 +28,31 @@ impl From<ColorRGB> for Srgba {
 }
 
 #[derive(Debug, Deserialize)]
-struct Colors {
+struct ReadInConfig {
     program_group_colors: [ColorRGB; 16],
+    #[serde(with = "BigArray")]
+    pub inst_names: [String; 128],
+    #[serde(with = "BigArray")]
+    pub drum_names: [String; 128],
 }
 
 #[derive(Debug, Resource)]
 pub struct Config {
     pub program_group_colors: [Srgba; 16],
+    pub inst_names: [String; 128],
+    pub drum_names: [String; 128],
 }
 
 pub fn read_config() -> Config {
     let file_name = "config.toml";
     let contents = std::fs::read_to_string(file_name).unwrap();
-    let colors: Colors = toml::from_str(&contents).unwrap();
+    let read_in_config: ReadInConfig = toml::from_str(&contents).unwrap();
     Config {
         program_group_colors:
-            colors.program_group_colors.map(|color_rgb| {
+            read_in_config.program_group_colors.map(|color_rgb| {
                 Srgba::from(color_rgb)
             }),
+        inst_names: read_in_config.inst_names,
+        drum_names: read_in_config.drum_names,
     }
 }

@@ -16,3 +16,265 @@ program_group_colors = [
     [255, 232, 220], # percussive
     [255, 247, 240], # sound effects
 ]
+
+inst_names = [
+    "Pno1",
+    "Pno2",
+    "Pno3",
+    "Honky",
+    "Epno1",
+    "Epno2",
+    "Harps",
+    "Clav",
+    "Celesta",
+    "Glock",
+    "M Box",
+    "Vibes",
+    "Mari",
+    "Xylo",
+    "Tubes",
+    "Dulci",
+    "Organ1",
+    "Organ2",
+    "Organ3",
+    "Chorg",
+    "Reed Org",
+    "Acc",
+    "Harm",
+    "Bandoneon",
+    "Ngui",
+    "Sgui",
+    "Jgui",
+    "Cgui",
+    "Muted Gui",
+    "Ogui",
+    "Dgui",
+    "Gui Harm",
+    "Abass",
+    "Fbass",
+    "Pbass",
+    "Fretl Bass",
+    "Sbass1",
+    "Sbass2",
+    "Synbass1",
+    "Synbass2",
+    "Violin",
+    "Viola",
+    "Cello",
+    "Cbass",
+    "Trem Str",
+    "Pizz Str",
+    "Harp",
+    "Timpani",
+    "Str1",
+    "Str2",
+    "Synstr1",
+    "Synstr2",
+    "Aahs",
+    "Oohs",
+    "Synvox",
+    "Orch Hit",
+    "Tp",
+    "Tb",
+    "Tuba",
+    "Muted Tp",
+    "F Horn",
+    "Brass",
+    "Synbrass 1",
+    "Synbrass 2",
+    "S Sax",
+    "A Sax",
+    "T Sax",
+    "B Sax",
+    "Oboe",
+    "Eng Horn",
+    "Bassoon",
+    "Clari",
+    "Piccolo",
+    "Flute",
+    "Rec",
+    "Pan",
+    "BBlow",
+    "Shaku",
+    "Whistle",
+    "Ocarina",
+    "Sq",
+    "Saw",
+    "Syncalli",
+    "Chiff",
+    "Charang",
+    "Solo Vox",
+    "Fifths",
+    "B&L",
+    "Fantasia",
+    "Warm",
+    "Poly",
+    "Spc Voice",
+    "Bowed",
+    "Metallic",
+    "Halo",
+    "Sweep",
+    "Ice Rain",
+    "Sndtrk",
+    "Crystal",
+    "Atm",
+    "Bright",
+    "Goblin",
+    "Echo Drops",
+    "Star",
+    "Sitar",
+    "Banjo",
+    "Shami",
+    "Koto",
+    "Kali",
+    "Bagpipe",
+    "Fiddle",
+    "Shanai",
+    "Tinkle",
+    "Agogo",
+    "S Drums",
+    "Wblock",
+    "Taiko",
+    "Melo Tom",
+    "Syndrum",
+    "R Cym",
+    "Gui Fret",
+    "Breath",
+    "Seashore",
+    "Bird",
+    "Phone",
+    "Copter",
+    "Applause",
+    "Gunshot",
+]
+
+drum_names = [
+    "Std1",             # PC 0
+    "Std2",             # PC 1
+    "Std3",             # PC 2
+    "?",                # PC 3
+    "?",                # PC 4
+    "?",                # PC 5
+    "?",                # PC 6
+    "?",                # PC 7
+    "Room",             # PC 8
+    "Hip Hop",          # PC 9
+    "Jungle",           # PC 10
+    "Techno",           # PC 11
+    "?",                # PC 12
+    "?",                # PC 13
+    "?",                # PC 14
+    "?",                # PC 15
+    "Power",            # PC 16
+    "?",                # PC 17
+    "?",                # PC 18
+    "?",                # PC 19
+    "?",                # PC 20
+    "?",                # PC 21
+    "?",                # PC 22
+    "?",                # PC 23
+    "Elec",             # PC 24
+    "TR-808",           # PC 25
+    "Dance",            # PC 26
+    "CR-78",            # PC 27
+    "TR-606",           # PC 28
+    "TR-707",           # PC 29
+    "TR-909",           # PC 30
+    "?",                # PC 31
+    "Jazz",             # PC 32
+    "?",                # PC 33
+    "?",                # PC 34
+    "?",                # PC 35
+    "?",                # PC 36
+    "?",                # PC 37
+    "?",                # PC 38
+    "?",                # PC 39
+    "Brush",            # PC 40
+    "?",                # PC 41
+    "?",                # PC 42
+    "?",                # PC 43
+    "?",                # PC 44
+    "?",                # PC 45
+    "?",                # PC 46
+    "?",                # PC 47
+    "Orch",             # PC 48
+    "Ethnic",           # PC 49
+    "K&S",              # PC 50
+    "?",                # PC 51
+    "Asia",             # PC 52
+    "C&C",              # PC 53
+    "?",                # PC 54
+    "?",                # PC 55
+    "Sfx",              # PC 56
+    "Rhy Fx",           # PC 57
+    "Rhy Fx2",          # PC 58
+    "?",                # PC 59
+    "?",                # PC 60
+    "?",                # PC 61
+    "?",                # PC 62
+    "?",                # PC 63
+    "?",                # PC 64
+    "?",                # PC 65
+    "?",                # PC 66
+    "?",                # PC 67
+    "?",                # PC 68
+    "?",                # PC 69
+    "?",                # PC 70
+    "?",                # PC 71
+    "?",                # PC 72
+    "?",                # PC 73
+    "?",                # PC 74
+    "?",                # PC 75
+    "?",                # PC 76
+    "?",                # PC 77
+    "?",                # PC 78
+    "?",                # PC 79
+    "?",                # PC 80
+    "?",                # PC 81
+    "?",                # PC 82
+    "?",                # PC 83
+    "?",                # PC 84
+    "?",                # PC 85
+    "?",                # PC 86
+    "?",                # PC 87
+    "?",                # PC 88
+    "?",                # PC 89
+    "?",                # PC 90
+    "?",                # PC 91
+    "?",                # PC 92
+    "?",                # PC 93
+    "?",                # PC 94
+    "?",                # PC 95
+    "?",                # PC 96
+    "?",                # PC 97
+    "?",                # PC 98
+    "?",                # PC 99
+    "?",                # PC 100
+    "?",                # PC 101
+    "?",                # PC 102
+    "?",                # PC 103
+    "?",                # PC 104
+    "?",                # PC 105
+    "?",                # PC 106
+    "?",                # PC 107
+    "?",                # PC 108
+    "?",                # PC 109
+    "?",                # PC 110
+    "?",                # PC 111
+    "?",                # PC 112
+    "?",                # PC 113
+    "?",                # PC 114
+    "?",                # PC 115
+    "?",                # PC 116
+    "?",                # PC 117
+    "?",                # PC 118
+    "?",                # PC 119
+    "?",                # PC 120
+    "?",                # PC 121
+    "?",                # PC 122
+    "?",                # PC 123
+    "?",                # PC 124
+    "?",                # PC 125
+    "?",                # PC 126
+    "?",                # PC 127
+]

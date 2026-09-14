@@ -9,4 +9,5 @@ pub struct MainStruct {
     pub short_msg_receiver: Receiver<u32>,
     pub midi_hub: MidiHub,
     pub midi_seq: Option<MidiSequence>,
+    pub file_name: Option<String>,
 }

@@ -5,6 +5,7 @@
  * Author: ickdanny
  */
 
+use either::*;
 use bevy::prelude::*;
 use bevy::sprite::*;
 
@@ -17,15 +18,21 @@ pub const PIXEL_RATIO: u32 = 2;
 pub const WINDOW_WIDTH: u32 = GAME_WIDTH * PIXEL_RATIO;
 pub const WINDOW_HEIGHT: u32 = GAME_HEIGHT * PIXEL_RATIO;
 
-const KEY_INIT_X: i32 = 300;
+const KEY_INIT_X: i32 = 305;
 const KEY_INIT_Y: i32 = -30;
 const KEY_X_INC: i32 = 7;
 const KEY_Y_INC: i32 = -20;
 const BLACK_KEY_X_OFFSET: i32 = -(KEY_X_INC/2) + 1;
 
-const TEXT_INIT_X: i32 = 20;
+const TEXT_INIT_X: i32 = 77;
 const TEXT_X_INC: i32 = 25;
 const TEXT_Y_OFFSET: i32 = -3;
+
+const INST_NAME_X: i32 = 9;
+
+const HEADER_Y: i32 = -9;
+
+const FOOTER_Y: i32 = -358;
 
 #[derive(Resource)]
 pub struct Sprites {
@@ -71,6 +78,12 @@ pub enum NumericTextInterest {
     Chorus,
     Delay,
 }
+
+#[derive(Component)]
+pub struct InstNameDisplay;
+
+#[derive(Component)]
+pub struct FileNameDisplay;
 
 impl Sprites {
     fn load(asset_server: &Res<AssetServer>) -> Self {
@@ -132,6 +145,7 @@ fn spawn_static_text(
     commands: &mut Commands,
     font: &Handle<Font>,
     text: &str,
+    color: &Srgba,
     x: i32,
     y: i32,
     z: i32,
@@ -145,8 +159,32 @@ fn spawn_static_text(
             font_smoothing: FontSmoothing::None,
             ..default()
         },
-        TextColor(Color::WHITE),
+        TextColor((*color).into()),
         Anchor::TOP_LEFT,
+    ));
+}
+
+fn spawn_file_name_text(
+    commands: &mut Commands,
+    font: &Handle<Font>,
+    text: &str,
+    color: &Srgba,
+    x: i32,
+    y: i32,
+    z: i32,
+) {
+    commands.spawn((
+        Text2d::new(text),
+        Transform::from_xyz(x as f32, y as f32, z as f32),
+        TextFont {
+            font: FontSource::Handle(font.clone()),
+            font_size: FontSize::Px(12.0),
+            font_smoothing: FontSmoothing::None,
+            ..default()
+        },
+        TextColor((*color).into()),
+        Anchor::TOP_LEFT,
+        FileNameDisplay{},
     ));
 }
 
@@ -154,14 +192,15 @@ fn spawn_text(
     commands: &mut Commands,
     font: &Handle<Font>,
     text: &str,
+    color: &Srgba,
     x: i32,
     y: i32,
     z: i32,
     channel: u8,
-    interest: Option<NumericTextInterest>,
+    interest: Either<NumericTextInterest, InstNameDisplay>,
 ) {
     match interest {
-        None => {
+        Right(_) => {
             commands.spawn((
                 Text2d::new(text),
                 Transform::from_xyz(x as f32, y as f32, z as f32),
@@ -171,12 +210,13 @@ fn spawn_text(
                     font_smoothing: FontSmoothing::None,
                     ..default()
                 },
-                TextColor(Color::WHITE),
+                TextColor((*color).into()),
                 Anchor::TOP_LEFT,
                 Channel(channel),
+                InstNameDisplay{},
             ));
         },
-        Some(interest) => {
+        Left(interest) => {
             commands.spawn((
                 Text2d::new(text),
                 Transform::from_xyz(x as f32, y as f32, z as f32),
@@ -186,14 +226,13 @@ fn spawn_text(
                     font_smoothing: FontSmoothing::None,
                     ..default()
                 },
-                TextColor(Color::WHITE),
+                TextColor((*color).into()),
                 Anchor::TOP_LEFT,
                 Channel(channel),
                 interest,
             ));
         }
     }
-    
 }
 
 #[derive(PartialEq)]
@@ -225,7 +264,8 @@ fn get_key_type(note_num: i32) -> KeyType {
 fn spawn_graphics(
     commands: &mut Commands,
     sprites: &Sprites,
-    font: Handle<Font>
+    font: Handle<Font>,
+    config: Res<Config>,
 ) {
     let white_off = &sprites.white_off;
     let black_off = &sprites.black_off;
@@ -234,15 +274,28 @@ fn spawn_graphics(
     let white_lr_on = &sprites.white_lr_on;
     let black_on = &sprites.black_on;
 
+    let color = config.program_group_colors[15];
+    let color = &color;
+
     // spawn header
+    spawn_static_text(
+        commands,
+        &font,
+        "INST",
+        color,
+        INST_NAME_X,
+        HEADER_Y,
+        10,
+    );
+
     let mut x = TEXT_INIT_X;
-    let text_y = -10;
     spawn_static_text(
         commands,
         &font,
         "PRG",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -250,8 +303,9 @@ fn spawn_graphics(
         commands,
         &font,
         "BNK",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -259,8 +313,9 @@ fn spawn_graphics(
         commands,
         &font,
         "PAN",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -268,8 +323,9 @@ fn spawn_graphics(
         commands,
         &font,
         "VOL",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -277,8 +333,9 @@ fn spawn_graphics(
         commands,
         &font,
         "EXP",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -286,8 +343,9 @@ fn spawn_graphics(
         commands,
         &font,
         "MOD",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -295,8 +353,9 @@ fn spawn_graphics(
         commands,
         &font,
         "RVB",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -304,8 +363,9 @@ fn spawn_graphics(
         commands,
         &font,
         "CHS",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
     x += TEXT_X_INC;
@@ -313,8 +373,9 @@ fn spawn_graphics(
         commands,
         &font,
         "DLY",
+        color,
         x,
-        text_y,
+        HEADER_Y,
         10,
     );
 
@@ -370,119 +431,153 @@ fn spawn_graphics(
         } // end loop for note num
 
         // spawn text
-        let mut x = TEXT_INIT_X;
         let text_y = y + TEXT_Y_OFFSET;
+
         spawn_text(
             commands,
             &font,
             "",
+            color,
+            INST_NAME_X,
+            text_y,
+            10,
+            channel as u8,
+            Right(InstNameDisplay{})
+        );
+
+        let mut x = TEXT_INIT_X;
+        spawn_text(
+            commands,
+            &font,
+            "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Program)
+            Left(NumericTextInterest::Program)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Bank)
+            Left(NumericTextInterest::Bank)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Pan)
+            Left(NumericTextInterest::Pan)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::MainVol)
+            Left(NumericTextInterest::MainVol)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Expression)
+            Left(NumericTextInterest::Expression)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Modulation)
+            Left(NumericTextInterest::Modulation)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Reverb)
+            Left(NumericTextInterest::Reverb)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Chorus)
+            Left(NumericTextInterest::Chorus)
         );
         x += TEXT_X_INC;
         spawn_text(
             commands,
             &font,
             "",
+            color,
             x,
             text_y,
             10,
             channel as u8,
-            Some(NumericTextInterest::Delay)
+            Left(NumericTextInterest::Delay)
         );
 
         y += KEY_Y_INC;
     } // end loop for channel
+
+    // spawn footer
+    spawn_file_name_text(
+        commands,
+        &font,
+        "",
+        color,
+        INST_NAME_X,
+        FOOTER_Y,
+        10,
+    );
 }
 
 pub fn spawn_graphics_system(
     mut commands: Commands,
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>,
+    config: Res<Config>,
 ) {
     let sprites = Sprites::load(&asset_server);
     let font = asset_server.load("Pixelify_Sans/PixelifySans-VariableFont_wght.ttf");
     
-    spawn_graphics(&mut commands, &sprites, font);
+    spawn_graphics(&mut commands, &sprites, font, config);
 
     commands.insert_resource(sprites);
 }
@@ -512,7 +607,6 @@ pub fn key_update_system(
                 [color_index as usize].into();
         } else { // note is off
             *visibility = Visibility::Hidden;
-            sprite.color = Color::WHITE;
         }
 
         // let alpha: f32 = note_state.velocity as f32 / 128.0;
@@ -592,6 +686,36 @@ pub fn numeric_text_update_system(
             } else {
                 let corrected_num = num - 64;
                 *text2d = Text2d::new(format!("R{:2}", corrected_num));
+            }
+        }
+    }
+}
+
+pub fn inst_name_display_system(
+    mut query: Query<(&mut Text2d, &Channel), With<InstNameDisplay>>,
+    main_struct: NonSendMut<MainStruct>,
+) {
+    let midi_state = &main_struct.midi_state;
+    for (mut text2d, channel) in &mut query {
+        let channel = channel.0;
+        let channel_state
+            = &midi_state.channel_states[channel as usize];
+
+        *text2d = Text2d::new(format!("{:.10}", channel_state.inst_name));
+    }
+}
+
+pub fn file_name_display_system(
+    mut query: Query<&mut Text2d, With<FileNameDisplay>>,
+    main_struct: NonSendMut<MainStruct>,
+) {
+    for mut text2d in &mut query {
+        match main_struct.file_name {
+            None => {
+                *text2d = Text2d::new(format!("Now playing: - - -"));
+            },
+            Some(ref file_name) => {
+                *text2d = Text2d::new(format!("Now playing: {}", file_name));
             }
         }
     }

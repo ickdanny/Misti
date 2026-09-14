@@ -55,7 +55,8 @@ impl MainStruct {
             midi_state,
             short_msg_receiver,
             midi_hub,
-            midi_seq: None
+            midi_seq: None,
+            file_name: None,
         }
     }
 }
@@ -82,11 +83,16 @@ fn spawn_camera_system(mut commands: Commands) {
 
 fn update_state_system(
     mut main_struct: NonSendMut<MainStruct>,
+    config: Res<Config>,
 ) {
     loop {
         match main_struct.short_msg_receiver.try_recv() {
             Ok(data) => {
-                main_struct.midi_state.update(data);
+                main_struct.midi_state.update(
+                    data,
+                    &config.inst_names,
+                    &config.drum_names,
+                );
             },
             Err(TryRecvError::Empty) => {
                 break;
@@ -121,6 +127,7 @@ fn file_drop_system(
                         if let Some(path) = path_buf.to_str() {
                             main_struct.midi_hub.stop();
                             main_struct.midi_seq = Some(MidiSequence::from_file(&path));
+                            main_struct.file_name = Some(path_buf.file_name().unwrap().to_str().unwrap().into());
                             main_struct.midi_hub.start(&main_struct.midi_seq.as_ref().unwrap());
                             main_struct.midi_state.reset();
                             clear_short_msg_receiver(&main_struct.short_msg_receiver);
@@ -162,5 +169,7 @@ fn main() {
         .add_systems(Update, file_drop_system)
         .add_systems(Update, text_color_update_system)
         .add_systems(Update, numeric_text_update_system)
+        .add_systems(Update, inst_name_display_system)
+        .add_systems(Update, file_name_display_system)
         .run();
 }

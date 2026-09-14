@@ -22,26 +22,34 @@ impl MidiState {
     pub fn new() -> Self {
         Self {
             song_name: String::new(),
-            channel_states: std::array::from_fn(|_| ChannelState::new()),
+            channel_states: std::array::from_fn(|i| ChannelState::new(i as u8)),
         }
     }
 
     pub fn reset(&mut self) {
         self.song_name = String::new();
-        self.channel_states = std::array::from_fn(|_| ChannelState::new());
+        self.channel_states = std::array::from_fn(|i| ChannelState::new(i as u8));
     }
 
-    pub fn update(&mut self, raw_msg: u32) {
+    pub fn update(
+        &mut self,
+        raw_msg: u32,
+        inst_names: &[String; 128],
+        drum_names: &[String; 128],
+    ) {
         let short_msg = MidiShortMsg::from(raw_msg);
         match short_msg {
             MidiShortMsg::NoteOff { note_num: _, velocity: _, channel } => {
-                self.channel_states[channel as usize].update(short_msg);
+                self.channel_states[channel as usize]
+                    .update(short_msg, inst_names, drum_names);
             },
             MidiShortMsg::NoteOn { note_num: _, velocity: _, channel } => {
-                self.channel_states[channel as usize].update(short_msg);
+                self.channel_states[channel as usize]
+                    .update(short_msg, inst_names, drum_names);
             }
             MidiShortMsg::ControlChange { cc: _, value: _, channel } => {
-                self.channel_states[channel as usize].update(short_msg);
+                self.channel_states[channel as usize]
+                    .update(short_msg, inst_names, drum_names);
             }
             MidiShortMsg::ChannelModeControlChange { cc } => {
                 match cc {
@@ -55,10 +63,12 @@ impl MidiState {
                 }
             }
             MidiShortMsg::ProgramChange { value: _, channel } => {
-                self.channel_states[channel as usize].update(short_msg);
+                self.channel_states[channel as usize]
+                    .update(short_msg, inst_names, drum_names);
             }
             MidiShortMsg::PitchBendChange { amount: _, channel } => {
-                self.channel_states[channel as usize].update(short_msg);
+                self.channel_states[channel as usize]
+                    .update(short_msg, inst_names, drum_names);
             }
             _ => {
                 println!("other update in state: {:x}", raw_msg);
@@ -68,6 +78,7 @@ impl MidiState {
 }
 
 pub struct ChannelState {
+    pub channel: u8,
     pub inst_name: String,
     pub program: u8,
     pub bank: u8,
@@ -87,9 +98,10 @@ pub struct ChannelState {
 }
 
 impl ChannelState {
-    fn new() -> Self {
+    fn new(channel: u8) -> Self {
         Self {
-            inst_name: String::new(),
+            channel,
+            inst_name: String::from("- - -"),
             program: 0,
             bank: 0,
             pan: 64,
@@ -108,15 +120,28 @@ impl ChannelState {
         }
     }
 
-    fn update_inst_name(&mut self) {
-        self.inst_name = String::from("TODO NOT IMPL");
+    fn update_inst_name(
+        &mut self,
+        inst_names: &[String; 128],
+        drum_names: &[String; 128],
+    ) {
+        if self.channel != 9 {
+            self.inst_name = inst_names[self.program as usize].clone();
+        } else {
+            self.inst_name = drum_names[self.program as usize].clone();
+        }
     }
 
-    fn update_cc(&mut self, cc: CCType, value: u8) {
+    fn update_cc(
+        &mut self,
+        cc: CCType, value: u8,
+        inst_names: &[String; 128],
+        drum_names: &[String; 128]
+    ) {
         match cc {
             CCType::BankSel => {
                 self.bank = value;
-                self.update_inst_name();
+                self.update_inst_name(inst_names, drum_names);
             },
             CCType::Modulation => {
                 self.modulation = value;
@@ -166,7 +191,12 @@ impl ChannelState {
         }
     }
 
-    fn update(&mut self, short_msg: MidiShortMsg) {
+    fn update(
+        &mut self,
+        short_msg: MidiShortMsg,
+        inst_names: &[String; 128],
+        drum_names: &[String; 128],
+    ) {
         // assume the channel is correct lmao
         match short_msg {
             MidiShortMsg::NoteOff { note_num, velocity, .. } => {
@@ -176,11 +206,11 @@ impl ChannelState {
                 self.note_states[note_num as usize].turn_on(velocity);
             }
             MidiShortMsg::ControlChange { cc, value, .. } => {
-                self.update_cc(cc, value);
+                self.update_cc(cc, value, inst_names, drum_names);
             }
             MidiShortMsg::ProgramChange { value, .. } => {
                 self.program = value;
-                self.update_inst_name();
+                self.update_inst_name(inst_names, drum_names);
             }
             MidiShortMsg::PitchBendChange { amount, .. } => {
                 self.pitchbend_amount = amount;
