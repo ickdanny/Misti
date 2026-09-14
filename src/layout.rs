@@ -39,6 +39,11 @@ const FOOTER_Y: i32 = -362;
 const LOGO_X: i32 = (GAME_WIDTH - 71) as i32;
 const LOGO_Y: i32 = HEADER_Y + 1;
 
+
+const VERSION_STR_X: i32 = (GAME_WIDTH - 36) as i32;
+
+const VERSION_STR: &str = concat!("v", env!("CARGO_PKG_VERSION"));
+
 #[derive(Resource)]
 pub struct Sprites {
     white_off: Handle<Image>,
@@ -600,6 +605,15 @@ fn spawn_graphics(
         "",
         color,
         INST_NAME_X,
+        FOOTER_Y,
+        10,
+    );
+    spawn_static_text(
+        commands,
+        &font,
+        VERSION_STR,
+        color,
+        VERSION_STR_X,
         FOOTER_Y,
         10,
     );
