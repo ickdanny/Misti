@@ -27,8 +27,8 @@ extern "C" fn short_msg_callback(a: u32) {
                 Ok(_) => {
                     // do nothing
                 },
-                Err(err) => {
-                    println!("{:?}", err);
+                Err(_) => {
+                    // do nothing
                 },
             }
         },

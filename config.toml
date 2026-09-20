@@ -1,4 +1,4 @@
-midi_out_index = 0
+midi_out_index = 2
 
 program_group_colors = [
     [226, 183, 190], # piano

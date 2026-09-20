@@ -206,9 +206,6 @@ void mmMidiOutShortMsg(
     MMMidiOut *midiOutPtr, 
     uint32_t output
 ){
-    #ifdef VERBOSE
-    pgWarning("before output short msg");
-    #endif
     if(output == 0xf7){
         return;
     }

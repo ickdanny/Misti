@@ -77,7 +77,7 @@ impl MidiState {
                     .update(short_msg, inst_names, drum_names);
             }
             _ => {
-                println!("other update in state: {:x}", raw_msg);
+                println!("unrecognized update to midi state: {:x}", raw_msg);
             }
         }
     }
@@ -222,7 +222,7 @@ impl ChannelState {
                 self.pitchbend_amount = amount;
             }
             _ => {
-                println!("other update in channel");
+                println!("unrecognized update to midi channel");
             }
         }
     }
