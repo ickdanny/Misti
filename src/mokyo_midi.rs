@@ -17,7 +17,9 @@ unsafe extern "C" {
     fn midiHubAlloc(
         muted: bool,
         midi_out_index: i32,
-        short_msg_callback: extern "C" fn(u32)
+        short_msg_callback: extern "C" fn(u32),
+        tempo_callback: extern "C" fn(u32),
+        time_sig_callback: extern "C" fn(u8, u8),
     ) -> *mut MidiHubDummy;
     fn midiHubStart(
         midiHubPtr: *mut MidiHubDummy,
@@ -49,9 +51,17 @@ impl MidiHub {
     pub fn new(
         midi_out_index: i32,
         short_msg_callback: extern "C" fn(u32),
+        tempo_callback: extern "C" fn(u32),
+        time_sig_callback: extern "C" fn(u8, u8),
     ) -> Self {
         unsafe {
-            MidiHub { ptr: midiHubAlloc(false, midi_out_index, short_msg_callback) }
+            MidiHub { ptr: midiHubAlloc(
+                false,
+                midi_out_index,
+                short_msg_callback,
+                tempo_callback,
+                time_sig_callback,
+            ) }
         }
     }
     pub fn start(&self, seq: &MidiSequence) {

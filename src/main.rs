@@ -17,8 +17,10 @@ use crate::main_struct::*;
 use crate::config::*;
 use crate::layout::*;
 
-/* used for callback from C to Rust */
+/* used for callbacks from C to Rust */
 static SHORT_MSG_SENDER: OnceLock<Sender<u32>> = OnceLock::new();
+static TEMPO_SENDER: OnceLock<Sender<u32>> = OnceLock::new();
+static TIME_SIG_SENDER: OnceLock<Sender<(u8, u8)>> = OnceLock::new();
 
 extern "C" fn short_msg_callback(a: u32) {
     match SHORT_MSG_SENDER.get() {
@@ -36,7 +38,39 @@ extern "C" fn short_msg_callback(a: u32) {
     }
 }
 
-fn init_channel() -> Option<Receiver<u32>> {
+extern "C" fn tempo_callback(tempo_us_per_beat: u32) {
+    match TEMPO_SENDER.get() {
+        Some(sender) => {
+            match sender.send(tempo_us_per_beat) {
+                Ok(_) => {
+                    // do nothing
+                },
+                Err(_) => {
+                    // do nothing
+                },
+            }
+        },
+        _ => ()
+    }
+}
+
+extern "C" fn time_sig_callback(numerator: u8, denominator_pow: u8) {
+    match TIME_SIG_SENDER.get() {
+        Some(sender) => {
+            match sender.send((numerator, denominator_pow)) {
+                Ok(_) => {
+                    // do nothing
+                },
+                Err(_) => {
+                    // do nothing
+                },
+            }
+        },
+        _ => ()
+    }
+}
+
+fn init_short_msg_channel() -> Option<Receiver<u32>> {
     if !SHORT_MSG_SENDER.get().is_none() {
         None
     } else {
@@ -46,14 +80,43 @@ fn init_channel() -> Option<Receiver<u32>> {
     }
 }
 
+fn init_tempo_channel() -> Option<Receiver<u32>> {
+    if !TEMPO_SENDER.get().is_none() {
+        None
+    } else {
+        let (sender, receiver) = channel();
+        TEMPO_SENDER.set(sender).unwrap();
+        Some(receiver)
+    }
+}
+
+fn init_time_sig_channel() -> Option<Receiver<(u8, u8)>> {
+    if !TIME_SIG_SENDER.get().is_none() {
+        None
+    } else {
+        let (sender, receiver) = channel();
+        TIME_SIG_SENDER.set(sender).unwrap();
+        Some(receiver)
+    }
+}
+
 impl MainStruct {
     fn new(midi_out_index: i32) -> Self {
         let midi_state = MidiState::new();
-        let short_msg_receiver = init_channel().unwrap();
-        let midi_hub = MidiHub::new(midi_out_index, short_msg_callback);
+        let short_msg_receiver = init_short_msg_channel().unwrap();
+        let tempo_receiver = init_tempo_channel().unwrap();
+        let time_sig_receiver = init_time_sig_channel().unwrap();
+        let midi_hub = MidiHub::new(
+            midi_out_index,
+            short_msg_callback,
+            tempo_callback,
+            time_sig_callback,
+        );
         Self {
             midi_state,
             short_msg_receiver,
+            tempo_receiver,
+            time_sig_receiver,
             midi_hub,
             midi_seq: None,
             file_name: None,
@@ -93,6 +156,33 @@ fn update_state_system(
                     &config.inst_names,
                     &config.drum_names,
                 );
+            },
+            Err(TryRecvError::Empty) => {
+                break;
+            },
+            Err(TryRecvError::Disconnected) => {
+                break;
+            }
+        }
+    }
+    loop {
+        match main_struct.tempo_receiver.try_recv() {
+            Ok(tempo_us_per_beat) => {
+                main_struct.midi_state.tempo_us_per_beat
+                    = tempo_us_per_beat;
+            },
+            Err(TryRecvError::Empty) => {
+                break;
+            },
+            Err(TryRecvError::Disconnected) => {
+                break;
+            }
+        }
+    }
+    loop {
+        match main_struct.time_sig_receiver.try_recv() {
+            Ok(time_sig) => {
+                main_struct.midi_state.time_sig = time_sig;
             },
             Err(TryRecvError::Empty) => {
                 break;
@@ -171,5 +261,7 @@ fn main() {
         .add_systems(Update, numeric_text_update_system)
         .add_systems(Update, inst_name_display_system)
         .add_systems(Update, file_name_display_system)
+        .add_systems(Update, tempo_display_system)
+        .add_systems(Update, time_sig_display_system)
         .run();
 }

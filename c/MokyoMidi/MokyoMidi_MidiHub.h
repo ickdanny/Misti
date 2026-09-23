@@ -25,7 +25,9 @@ typedef struct MidiHub{
 MidiHub midiHubMake(
     bool muted,
     int32_t midi_out_index,
-    void (*shortMsgCallback)(uint32_t)
+    void (*shortMsgCallback)(uint32_t),
+    void (*tempoCallback)(uint32_t),
+    void (*timeSigCallback)(uint8_t, uint8_t)
 );
 
 /* 
@@ -66,7 +68,9 @@ void midiHubFree(MidiHub *midiHubPtr);
 MidiHub *midiHubAlloc(
     bool muted,
     int32_t midi_out_index,
-    void (*shortMsgCallback)(uint32_t)
+    void (*shortMsgCallback)(uint32_t),
+    void (*tempoCallback)(uint32_t),
+    void (*timeSigCallback)(uint8_t, uint8_t)
 );
 void midiHubFreeAlloc(MidiHub *midiHubPtr);
 

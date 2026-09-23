@@ -13,8 +13,8 @@ const NUM_CHANNELS: usize = 16;
 
 pub struct MidiState {
     pub song_name: String,
-    // TODO: time sig
-    // TODO: tempo
+    pub time_sig: (u8, u8),
+    pub tempo_us_per_beat: u32,
     pub channel_states: [ChannelState; NUM_CHANNELS],
 }
 
@@ -22,12 +22,16 @@ impl MidiState {
     pub fn new() -> Self {
         Self {
             song_name: String::new(),
+            time_sig: (0, 0),
+            tempo_us_per_beat: 0,
             channel_states: std::array::from_fn(|i| ChannelState::new(i as u8)),
         }
     }
 
     pub fn reset(&mut self) {
         self.song_name = String::new();
+        self.time_sig = (0, 0);
+        self.tempo_us_per_beat = 0;
         self.channel_states = std::array::from_fn(|i| ChannelState::new(i as u8));
     }
 

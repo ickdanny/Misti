@@ -34,13 +34,21 @@ typedef struct MidiSequencer{
     /* threading fields */
     Thread playbackThread;
     atomic_bool running;
+
+    /* used to communicate tempo changes */
+    void (*tempoCallback)(uint32_t);
+    void (*timeSigCallback)(uint8_t, uint8_t);
 } MidiSequencer;
 
 /* 
  * Constructs and returns a new MidiSequencer with
  * the specified MMMidiOut by value
  */
-MidiSequencer midiSequencerMake(MMMidiOut *midiOutPtr);
+MidiSequencer midiSequencerMake(
+    MMMidiOut *midiOutPtr,
+    void (*tempoCallback)(uint32_t),
+    void (*timeSigCallback)(uint8_t, uint8_t)
+);
 
 /* Begins playing back the specified midi sequence */
 void midiSequencerStart(

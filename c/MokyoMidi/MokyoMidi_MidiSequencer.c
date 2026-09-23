@@ -9,10 +9,16 @@
  * Constructs and returns a new MidiSequencer with
  * the specified MMMidiOut by value
  */
-MidiSequencer midiSequencerMake(MMMidiOut *midiOutPtr){
+MidiSequencer midiSequencerMake(
+    MMMidiOut *midiOutPtr,
+    void (*tempoCallback)(uint32_t),
+    void (*timeSigCallback)(uint8_t, uint8_t)
+){
     MidiSequencer toRet = {0};
     toRet.midiOutPtr = midiOutPtr;
     atomic_init(&(toRet.running), false);
+    toRet.tempoCallback = tempoCallback;
+    toRet.timeSigCallback = timeSigCallback;
 
     return toRet;
 }
@@ -105,6 +111,9 @@ static void midiSequencerHandleMetaEvent(
             = fromBigEndian32(
                 sequencerPtr->currentPtr->deltaTime
             ) >> 8;
+        sequencerPtr->tempoCallback(
+            sequencerPtr->microsecondsPerBeat
+        );
 		sequencerPtr->timePerTick100ns
             = microsecondsPerBeatToTimePerTick100ns(
 			    sequencerPtr->microsecondsPerBeat,
@@ -160,6 +169,22 @@ static void midiSequencerHandleMetaEvent(
                 return;
             }
         }
+    }
+
+    // see https://www.recordingblogs.com/wiki/midi-time-signature-meta-message
+    else if(metaEventStatus == mm_metaTimeSignature) {
+        // somehow doesn't fit in buffer; malformed message
+        if(byteLength > 4) {
+            return;
+        }
+        /* copy data to buffer */
+        uint8_t buffer[4] = {0};
+        memcpy(
+            buffer,
+            (uint8_t*)(sequencerPtr->currentPtr),
+            byteLength
+        );
+        sequencerPtr->timeSigCallback(buffer[0], buffer[1]);
     }
 	
 	sequencerPtr->currentPtr += indexLength;

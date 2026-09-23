@@ -39,6 +39,8 @@ const FOOTER_Y: i32 = -362;
 const LOGO_X: i32 = (GAME_WIDTH - 71) as i32;
 const LOGO_Y: i32 = HEADER_Y + 1;
 
+const TEMPO_X: i32 = KEY_INIT_X + 7;
+const TIME_SIG_X: i32 = 382;
 
 const VERSION_STR_X: i32 = (GAME_WIDTH - 36) as i32;
 
@@ -96,6 +98,12 @@ pub struct InstNameDisplay;
 
 #[derive(Component)]
 pub struct FileNameDisplay;
+
+#[derive(Component)]
+pub struct TempoDisplay;
+
+#[derive(Component)]
+pub struct TimeSigDisplay;
 
 impl Sprites {
     fn load(asset_server: &Res<AssetServer>) -> Self {
@@ -199,6 +207,54 @@ fn spawn_file_name_text(
         TextColor((*color).into()),
         Anchor::TOP_LEFT,
         FileNameDisplay{},
+    ));
+}
+
+fn spawn_tempo_text(
+    commands: &mut Commands,
+    font: &Handle<Font>,
+    text: &str,
+    color: &Srgba,
+    x: i32,
+    y: i32,
+    z: i32,
+) {
+    commands.spawn((
+        Text2d::new(text),
+        Transform::from_xyz(x as f32, y as f32, z as f32),
+        TextFont {
+            font: FontSource::Handle(font.clone()),
+            font_size: FontSize::Px(12.0),
+            font_smoothing: FontSmoothing::None,
+            ..default()
+        },
+        TextColor((*color).into()),
+        Anchor::TOP_LEFT,
+        TempoDisplay{},
+    ));
+}
+
+fn spawn_time_sig_text(
+    commands: &mut Commands,
+    font: &Handle<Font>,
+    text: &str,
+    color: &Srgba,
+    x: i32,
+    y: i32,
+    z: i32,
+) {
+    commands.spawn((
+        Text2d::new(text),
+        Transform::from_xyz(x as f32, y as f32, z as f32),
+        TextFont {
+            font: FontSource::Handle(font.clone()),
+            font_size: FontSize::Px(12.0),
+            font_smoothing: FontSmoothing::None,
+            ..default()
+        },
+        TextColor((*color).into()),
+        Anchor::TOP_LEFT,
+        TimeSigDisplay{},
     ));
 }
 
@@ -416,6 +472,26 @@ fn spawn_graphics(
         "DLY",
         color,
         x,
+        HEADER_Y,
+        10,
+    );
+
+    spawn_tempo_text(
+        commands,
+        &font,
+        "Tempo: - - -",
+        color,
+        TEMPO_X,
+        HEADER_Y,
+        10,
+    );
+
+    spawn_time_sig_text(
+        commands,
+        &font,
+        "Time Sig: - - -",
+        color,
+        TIME_SIG_X,
         HEADER_Y,
         10,
     );
@@ -770,6 +846,41 @@ pub fn file_name_display_system(
             Some(ref file_name) => {
                 *text2d = Text2d::new(format!("Now playing: {}", file_name));
             }
+        }
+    }
+}
+
+pub fn tempo_display_system(
+    mut query: Query<&mut Text2d, With<TempoDisplay>>,
+    main_struct: NonSendMut<MainStruct>,
+) {
+    for mut text2d in &mut query {
+        let tempo_us_per_beat
+            = main_struct.midi_state.tempo_us_per_beat;
+        if tempo_us_per_beat > 0 {
+            let bpm = (60 * 1000000) / tempo_us_per_beat;
+            *text2d = Text2d::new(format!("Tempo: {}", bpm));
+        } else {
+            *text2d = Text2d::new(format!("Tempo: - - -"));
+        }
+    }
+}
+
+pub fn time_sig_display_system(
+    mut query: Query<&mut Text2d, With<TimeSigDisplay>>,
+    main_struct: NonSendMut<MainStruct>,
+) {
+    for mut text2d in &mut query {
+        let (numerator, denominator_pow)
+            = main_struct.midi_state.time_sig;
+        if numerator > 0 {
+            *text2d = Text2d::new(format!(
+                "Time Sig: {}/{}",
+                numerator,
+                2_i32.pow(denominator_pow.into()))
+            );
+        } else {
+            *text2d = Text2d::new(format!("Time Sig: - - -"));
         }
     }
 }
