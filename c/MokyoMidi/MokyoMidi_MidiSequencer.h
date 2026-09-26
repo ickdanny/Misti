@@ -23,6 +23,8 @@ typedef struct MidiSequencer{
     MidiSequence *sequencePtr;
     /* a pointer to the current event unit */
     _EventUnit *currentPtr;
+    /* true if we are looping, false otherwise */
+    bool looping;
     /* 
      * a pointer to the first event unit after the
      * loop, or null if no loop has been encountered
@@ -46,6 +48,7 @@ typedef struct MidiSequencer{
  */
 MidiSequencer midiSequencerMake(
     MMMidiOut *midiOutPtr,
+    bool looping,
     void (*tempoCallback)(uint32_t),
     void (*timeSigCallback)(uint8_t, uint8_t)
 );

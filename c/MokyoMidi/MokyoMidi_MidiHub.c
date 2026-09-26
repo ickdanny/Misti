@@ -8,6 +8,7 @@
  */
 MidiHub midiHubMake(
     bool muted,
+    bool looping,
     int32_t midi_out_index,
     void (*shortMsgCallback)(uint32_t),
     void (*tempoCallback)(uint32_t),
@@ -22,6 +23,7 @@ MidiHub midiHubMake(
     );
     toRet.midiSequencer = midiSequencerMake(
         toRet.midiOutPtr,
+        looping,
         tempoCallback,
         timeSigCallback
     );
@@ -86,6 +88,7 @@ void midiHubFree(MidiHub *midiHubPtr){
 
 MidiHub *midiHubAlloc(
     bool muted,
+    bool looping,
     int32_t midi_out_index,
     void (*shortMsgCallback)(uint32_t),
     void (*tempoCallback)(uint32_t),
@@ -98,6 +101,7 @@ MidiHub *midiHubAlloc(
     if(midiHubPtr){
         *midiHubPtr = midiHubMake(
             muted,
+            looping,
             midi_out_index,
             shortMsgCallback,
             tempoCallback,

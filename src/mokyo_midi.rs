@@ -16,6 +16,7 @@ unsafe extern "C" {
     );
     fn midiHubAlloc(
         muted: bool,
+        looping: bool,
         midi_out_index: i32,
         short_msg_callback: extern "C" fn(u32),
         tempo_callback: extern "C" fn(u32),
@@ -56,7 +57,8 @@ impl MidiHub {
     ) -> Self {
         unsafe {
             MidiHub { ptr: midiHubAlloc(
-                false,
+                false, // not muted
+                false, // not looping
                 midi_out_index,
                 short_msg_callback,
                 tempo_callback,

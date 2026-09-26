@@ -241,7 +241,7 @@ impl ChannelState {
 pub struct NoteState {
     on_count: u32,
     /* used to detect instant note off e.g. drums */
-    pub on_flag: bool,
+    pub on_flag: bool, /* cannot have corresponding off flag; must choose one */
     pub velocity: u8,
 }
 

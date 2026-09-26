@@ -11,12 +11,14 @@
  */
 MidiSequencer midiSequencerMake(
     MMMidiOut *midiOutPtr,
+    bool looping,
     void (*tempoCallback)(uint32_t),
     void (*timeSigCallback)(uint8_t, uint8_t)
 ){
     MidiSequencer toRet = {0};
     toRet.midiOutPtr = midiOutPtr;
     atomic_init(&(toRet.running), false);
+    toRet.looping = looping;
     toRet.tempoCallback = tempoCallback;
     toRet.timeSigCallback = timeSigCallback;
 
@@ -121,7 +123,9 @@ static void midiSequencerHandleMetaEvent(
 		    );
 	}
 
-    else if(metaEventStatus == mm_metaMarker){
+    else if(metaEventStatus == mm_metaMarker
+        && sequencerPtr->looping
+    ) {
         /* if loop start, set loop ptr */
         if(byteLength == 9){
             /* copy text to buffer */
